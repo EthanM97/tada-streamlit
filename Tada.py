@@ -25,32 +25,39 @@ def run():
 
     uploaded_df = secure_file_uploader()
     if uploaded_df is not None:
-      # Data Analysis Tools
-      cols = st.columns(3)  # Create columns for checkboxes
-      do_duplicates_check = cols[0].checkbox("Check for Duplicates")
-      do_empty_check = cols[1].checkbox("Check for Empty Cells")
-      do_encoding_check = cols[2].checkbox("Check Encoding")
+        st.session_state.df_to_display = uploaded_df.copy()  # Initialize session state
 
-      # Updated DataFrame (Initially displayed as-is)
-      df_to_display = uploaded_df.copy() 
+        # Data Analysis Tools
+        cols = st.columns(3)
+        do_duplicates_check = cols[0].checkbox("Check for Duplicates")
+        do_empty_check = cols[1].checkbox("Check for Empty Cells")
+        do_encoding_check = cols[2].checkbox("Check Encoding")
 
-      # Apply analysis if selected
-      if do_duplicates_check:
-        df_to_display = check_and_remove_duplicates(df_to_display)  # Display results
+        if st.button("Apply Filters"):
+            df = st.session_state.df_to_display.copy()
 
-      if do_empty_check:
-        df_to_display = check_and_fill_empty_cells(df_to_display)  # Display results
+            if do_duplicates_check:
+                df = check_and_remove_duplicates(df)
+            if do_empty_check:
+                df = check_and_fill_empty_cells(df)
+            if do_encoding_check:
+                df = apply_encoding_if_needed(df)  # Updated function call
 
-      if do_encoding_check:
-        df_needs_encoding = detect_encoding_needs(df_to_display.copy())
-        if df_needs_encoding is not False:
-            df_to_display = apply_one_hot_encoding(df_needs_encoding)  
-            st.info("One-hot encoding applied.")
-        else:
-            st.info("All columns appear to be already encoded.")
+            st.session_state.df_to_display = df
 
-      st.subheader("Analyzed Data")  
-      st.dataframe(df_to_display) 
+        st.subheader("Analyzed Data")
+        st.dataframe(st.session_state.df_to_display)
+
+# ... (Your other functions: check_and_remove_duplicates, check_and_fill_empty_cells, secure_file_uploader)
+
+def apply_encoding_if_needed(df):
+    df_needs_encoding = detect_encoding_needs(df.copy())
+    if df_needs_encoding is not False:
+        df = apply_one_hot_encoding(df_needs_encoding)
+        st.info("One-hot encoding applied.")
+    else:
+        st.info("All columns appear to be already encoded.")
+    return df
         
 
 def check_and_remove_duplicates(df):
