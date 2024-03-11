@@ -48,7 +48,6 @@ def run():
         st.subheader("Analyzed Data")
         st.dataframe(st.session_state.df_to_display)
 
-# ... (Your other functions: check_and_remove_duplicates, check_and_fill_empty_cells, secure_file_uploader)
 
 def apply_encoding_if_needed(df):
     df_needs_encoding = detect_encoding_needs(df.copy())
