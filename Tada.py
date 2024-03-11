@@ -34,19 +34,57 @@ def run():
         do_encoding_check = cols[2].checkbox("Check Encoding")
 
         if st.button("Apply Filters"):
-            df = st.session_state.df_to_display.copy()
-
-            if do_duplicates_check:
-                df = check_and_remove_duplicates(df)
-            if do_empty_check:
-                df = check_and_fill_empty_cells(df)
-            if do_encoding_check:
-                df = apply_encoding_if_needed(df)  # Updated function call
-
+            df = apply_filters(st.session_state.df_to_display.copy(), do_duplicates_check, do_empty_check, do_encoding_check)
             st.session_state.df_to_display = df
 
-        st.subheader("Analyzed Data")
-        st.dataframe(st.session_state.df_to_display)
+        customize_dataframe()
+
+def customize_dataframe():
+    st.write("## Customize DataFrame")
+
+    df = st.session_state.df_to_display
+
+    with st.form("customize_df"):
+        # Display a text input for each column for renaming purposes
+        new_column_names_dict = {col: st.text_input(f"Rename {col} to:", value=col, key=f"rename_{col}") for col in df.columns}
+
+        # Prepare a list of current (potentially new) column names for the rearrangement prompt
+        # This updates as new names are entered but before the "Apply Customizations" button is clicked
+        current_columns_after_rename = [new_column_names_dict[col] for col in df.columns]
+        
+        # Text input for user to rearrange columns, showing current (potentially new) order by default
+        cols_order_str = st.text_input("Rearrange columns (comma-separated):", value=','.join(current_columns_after_rename), key="rearrange_cols")
+
+        submitted = st.form_submit_button("Apply Customizations")
+        if submitted:
+            # Update column names based on user input
+            df.rename(columns=new_column_names_dict, inplace=True)
+
+            # Trim spaces from user input and split by commas to form new order list
+            new_order = [col.strip() for col in cols_order_str.split(',')]
+
+            # Validate the new column order
+            invalid_columns = [col for col in new_order if col not in df.columns]
+            if invalid_columns:
+                st.error(f"Error: These columns are not in the DataFrame or were mistyped: {invalid_columns}")
+            else:
+                # Rearrange columns based on validated new order
+                df = df[new_order]
+                st.session_state.df_to_display = df  # Update session state to reflect changes
+
+    # Display the DataFrame with applied customizations
+    st.subheader("Customized Data")
+    st.dataframe(st.session_state.df_to_display)
+
+
+def apply_filters(df, do_duplicates_check, do_empty_check, do_encoding_check):
+    if do_duplicates_check:
+        df = check_and_remove_duplicates(df)
+    if do_empty_check:
+        df = check_and_fill_empty_cells(df)
+    if do_encoding_check:
+        df = apply_encoding_if_needed(df)
+    return df
 
 
 def apply_encoding_if_needed(df):
