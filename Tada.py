@@ -25,66 +25,99 @@ def run():
 
     uploaded_df = secure_file_uploader()
     if uploaded_df is not None:
-      # Data Analysis Tools
-      cols = st.columns(3)  # Create columns for checkboxes
-      do_duplicates_check = cols[0].checkbox("Check for Duplicates")
-      do_empty_check = cols[1].checkbox("Check for Empty Cells")
-      do_encoding_check = cols[2].checkbox("Check Encoding")
+        st.session_state.df_to_display = uploaded_df.copy()  # Initialize session state
 
-      # Updated DataFrame (Initially displayed as-is)
-      df_to_display = uploaded_df.copy() 
+        # Data Analysis Tools
+        cols = st.columns(3)
+        do_duplicates_check = cols[0].checkbox("Check for Duplicates")
+        do_empty_check = cols[1].checkbox("Check for Empty Cells")
+        do_encoding_check = cols[2].checkbox("Check Encoding")
 
-      # Apply analysis if selected
-      if do_duplicates_check:
-          df_to_display = modify_df_for_duplicates(df_to_display)  # You'll need to implement this
-          check_duplicates(df_to_display)  # Display results
+        if st.button("Apply Filters"):
+            df = st.session_state.df_to_display.copy()
 
-      if do_empty_check:
-          df_to_display = modify_df_for_empty_cells(df_to_display)  # You'll need to implement this
-          check_empty_cells(df_to_display)  # Display results
+            if do_duplicates_check:
+                df = check_and_remove_duplicates(df)
+            if do_empty_check:
+                df = check_and_fill_empty_cells(df)
+            if do_encoding_check:
+                df = apply_encoding_if_needed(df)  # Updated function call
 
-      if do_encoding_check:
-          check_encoding(df_to_display)  # Display results
+            st.session_state.df_to_display = df
 
-      st.subheader("Analyzed Data")  
-      st.dataframe(df_to_display) 
+        st.subheader("Analyzed Data")
+        st.dataframe(st.session_state.df_to_display)
+
+# ... (Your other functions: check_and_remove_duplicates, check_and_fill_empty_cells, secure_file_uploader)
+
+def apply_encoding_if_needed(df):
+    df_needs_encoding = detect_encoding_needs(df.copy())
+    if df_needs_encoding is not False:
+        df = apply_one_hot_encoding(df_needs_encoding)
+        st.info("One-hot encoding applied.")
+    else:
+        st.info("All columns appear to be already encoded.")
+    return df
         
 
-def check_duplicates(df):
-    """Checks for duplicate rows in the DataFrame."""
-    if df.duplicated().sum() > 0:
-        st.warning("Duplicate rows found!")
+def check_and_remove_duplicates(df):
+    """Checks for and removes duplicate rows in the DataFrame."""
+    df_clean = df.copy()  # Create a copy of the DataFrame
+    duplicate_rows = df_clean.duplicated().sum()
+    if duplicate_rows > 0:
+        df_clean.drop_duplicates(inplace=True)
+        st.warning(f"Duplicate rows found and removed: {duplicate_rows}")
     else:
         st.info("No duplicate rows detected.")
+    return df_clean
 
-def check_empty_cells(df):
-    """Checks for empty cells (NaN values) in the DataFrame."""
-    if df.isna().sum().sum() > 0:
-        st.warning("Empty cells found!")
+def check_and_fill_empty_cells(df):
+    """Checks for empty cells (NaN values) and fills them in the DataFrame."""
+    df_clean = df.copy()  # Create a copy of the DataFrame
+    empty_cells = df_clean.isna().sum().sum()
+    if empty_cells > 0:
+        fill_value = st.text_input("Enter a value to fill empty cells:", "Missing")
+        df_clean.fillna(fill_value, inplace=True)
+        st.warning(f"Empty cells found and filled with '{fill_value}'.")
     else:
         st.info("No empty cells detected.")
-
-def check_encoding(df):
-    """Checks if any columns contain one-hot or multi-hot encoding."""
-    for col in df.select_dtypes(include='object'):
-        if len(df[col].unique()) <= 2:
-            st.info(f"Column '{col}' appears to be one-hot encoded.")
-        elif len(df[col].unique()) > 2:
-            st.info(f"Column '{col}' may be multi-hot encoded.")
-
-def modify_df_for_duplicates(df):
-    """Removes duplicate rows from the DataFrame."""
-    df_clean = df.drop_duplicates()
-    st.info("Duplicate rows removed.")  # Indicate that changes were made
     return df_clean
 
+def detect_encoding_needs(df):
+    """Checks for columns in need of one-hot/multi-hot encoding.
 
-def modify_df_for_empty_cells(df):
-    """Fills empty cells (NaN values) in the DataFrame."""  
-    fill_value = st.text_input("Enter a value to fill empty cells:", "Missing")
-    df_clean = df.fillna(fill_value)
-    st.info("Empty cells filled.") 
-    return df_clean
+    Args:
+        df (pandas.DataFrame): The DataFrame to analyze.
+
+    Returns:
+        pandas.DataFrame or bool: A DataFrame containing columns that require encoding, or False if all columns are already encoded.
+    """
+
+    df_to_encode = df.copy()
+    for col in df_to_encode.select_dtypes(include='object'):
+        unique_values = df_to_encode[col].unique()
+        if len(unique_values) > 2:  # Assume already encoded if more than 2 unique values
+            df_to_encode.drop(col, axis=1, inplace=True)  # Remove encoded columns
+
+    if df_to_encode.empty:
+        return False  # All columns are encoded
+    else:
+        return df_to_encode  # Return DataFrame with columns to encode 
+
+
+def apply_one_hot_encoding(df):
+    """Applies one-hot encoding to eligible columns.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame containing columns to encode.
+
+    Returns:
+        pandas.DataFrame: The DataFrame with one-hot encoded columns.
+    """
+
+    return pd.get_dummies(df)  
+
+        
 
 
 def secure_file_uploader():
