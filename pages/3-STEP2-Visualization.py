@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import seaborn as sns
-import numpy as np
+import time
 import matplotlib.pyplot as plt 
 from modules.shared_functions import *
 from modules.preproc_functions import *
@@ -9,6 +9,7 @@ from modules.preproc_functions import *
 st.set_page_config(page_title="Visualize Your Data", page_icon="📊", layout="wide")
 
 st.header("Visualize")
+st.write("**Note:** larger datasets may yeild long loading times")
 
 st.sidebar.header("Visualize")
 st.sidebar.write("Visualizations allow the human eye to process patterns and trends with greater ease and efficiency than tabular data. This step is essential to gather key insights into your data.")
@@ -25,8 +26,8 @@ if 'main_df' not in st.session_state:
 df = st.session_state["main_df"]
 
 # Set theme
-STYLE = sns.set_style("white")
-COLOR_PALETTE = sns.color_palette("tab10")
+sns.set_style("white")
+sns.color_palette("tab10")
 
 tab1, tab2, tab3, tab4 = st.tabs(["Scatter Plot", "Histogram", "Bar Chart", "Line Chart"])
 
@@ -53,9 +54,13 @@ with tab1:
             # Create the scatter plot 
             fig, ax = plt.subplots(figsize=(18, 12))  
             if hue_col:
-                sns.scatterplot(x=x_col, y=y_col, hue=hue_col, data=df, palette=COLOR_PALETTE)
+                with st.spinner("Creating your scatter plot:"):
+                    time.sleep(2)
+                    sns.scatterplot(x=x_col, y=y_col, hue=hue_col, data=df)
             else:
-                sns.scatterplot(x=x_col, y=y_col, data=df, palette=COLOR_PALETTE)
+                with st.spinner("Creating your scatter plot:"):
+                    time.sleep(2)
+                    sns.scatterplot(x=x_col, y=y_col, data=df)
             st.pyplot(fig)
         else:
             st.error("No data found or selected columns are invalid. Please check your data.")
@@ -87,9 +92,13 @@ with tab2:
             # Now create the plot
             fig, ax =  plt.subplots(figsize=(18, 12))
             if hue_col_hist:
-                sns.histplot(x=x_col, y=y_col, hue=hue_col_hist, data=df, ax=ax, bins=int_bins, palette=COLOR_PALETTE)
+                with st.spinner("Creating your histogram:"):
+                    time.sleep(2)
+                    sns.histplot(x=x_col, y=y_col, hue=hue_col_hist, data=df, ax=ax, bins=int_bins)
             else:
-                sns.histplot(x=x_col, y=y_col, data=df, ax=ax, bins=int_bins, palette=COLOR_PALETTE)
+                with st.spinner("Creating your histogram:"):
+                    time.sleep(2)
+                    sns.histplot(x=x_col, y=y_col, data=df, ax=ax, bins=int_bins)
             st.pyplot(fig)
             
         else:
@@ -119,9 +128,13 @@ with tab3:
             # Create the bar chart
             fig, ax = plt.subplots(figsize=(10, 6))  
             if hue_col_bar:
-                sns.barplot(x=cat_col, y=num_col, hue=hue_col_bar, data=df, ax=ax, palette=COLOR_PALETTE)
+                with st.spinner("Building your bar chart:"):
+                    time.sleep(2)
+                    sns.barplot(x=cat_col, y=num_col, hue=hue_col_bar, data=df, ax=ax)
             else:
-                sns.barplot(x=cat_col, y=num_col, data=df, ax=ax, palette=COLOR_PALETTE)
+                with st.spinner("Building your bar char:"):
+                    time.sleep(2)
+                    sns.barplot(x=cat_col, y=num_col, data=df, ax=ax)
             st.pyplot(fig)
         else:
             st.error("No data found or selected columns are invalid. Please check your data.") 
@@ -149,9 +162,13 @@ with tab4:
             # Create the line chart
             fig, ax = plt.subplots(figsize=(10, 6))  
             if group_col:
-                sns.lineplot(x=line_x, y=line_y, hue=group_col, data=df, ax=ax, palette=COLOR_PALETTE)
+                with st.spinner("Creating your line graph:"):
+                    time.sleep(2)
+                    sns.lineplot(x=line_x, y=line_y, hue=group_col, data=df, ax=ax)
             else:
-                sns.lineplot(x=line_x, y=line_y, data=df, ax=ax, palette=COLOR_PALETTE)
+                with st.spinner("Creating your line graph:"):
+                    time.sleep(2)
+                    sns.lineplot(x=line_x, y=line_y, data=df, ax=ax)
             st.pyplot(fig)
         else:
             st.error("No data found or selected columns are invalid. Please check your data.") 
