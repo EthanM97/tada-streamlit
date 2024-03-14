@@ -25,8 +25,8 @@ if 'main_df' not in st.session_state:
 df = st.session_state["main_df"]
 
 # Set theme
-sns.set_style("white")
-sns.color_palette("tab10")
+STYLE = sns.set_style("white")
+COLOR_PALETTE = sns.color_palette("tab10")
 
 tab1, tab2, tab3, tab4 = st.tabs(["Scatter Plot", "Histogram", "Bar Chart", "Line Chart"])
 
@@ -53,9 +53,9 @@ with tab1:
             # Create the scatter plot 
             fig, ax = plt.subplots(figsize=(18, 12))  
             if hue_col:
-                sns.scatterplot(x=x_col, y=y_col, hue=hue_col, data=df, ax=ax)
+                sns.scatterplot(x=x_col, y=y_col, hue=hue_col, data=df, palette=COLOR_PALETTE)
             else:
-                sns.scatterplot(x=x_col, y=y_col, data=df, ax=ax)
+                sns.scatterplot(x=x_col, y=y_col, data=df, palette=COLOR_PALETTE)
             st.pyplot(fig)
         else:
             st.error("No data found or selected columns are invalid. Please check your data.")
@@ -85,16 +85,76 @@ with tab2:
             st.warning("Please select both X and Y columns to plot.")
         elif not df.empty and x_col in df.columns and y_col in df.columns:
             # Now create the plot
-            fig, ax =  plt.subplots(figsize=(18,12))
+            fig, ax =  plt.subplots(figsize=(18, 12))
             if hue_col_hist:
-                sns.histplot(x=x_col, y=y_col, hue=hue_col_hist, data=df, ax=ax, bins=int_bins)
+                sns.histplot(x=x_col, y=y_col, hue=hue_col_hist, data=df, ax=ax, bins=int_bins, palette=COLOR_PALETTE)
             else:
-                sns.histplot(x=x_col, y=y_col, data=df, ax=ax, bins=int_bins)
+                sns.histplot(x=x_col, y=y_col, data=df, ax=ax, bins=int_bins, palette=COLOR_PALETTE)
             st.pyplot(fig)
             
         else:
             st.error("No data found or selected columns are invalid. Please check your data.")
-    
+            
+            
+with tab3:
+    st.subheader("Bar Chart Configuration")
+
+    # Column Selection (Categorical + Numerical)
+    bar_1, bar_2 = st.columns(2)
+
+    with bar_1:
+        cat_col = st.selectbox("Select Column (X-axis):", df.columns)
+    with bar_2:
+        num_col = st.selectbox("Select Column (Y-axis):", df.columns)
+
+    # Color (Hue) Selection
+    hue_col_bar = st.selectbox("Hue col:", df.columns.insert(0, None))
+
+    # Plot Button
+    if st.button("Create Bar Chart"):
+        # Handle potential errors before plotting
+        if not cat_col or not num_col:
+            st.warning("Please select both a categorical and numerical column.")
+        elif not df.empty and cat_col in df.columns and num_col in df.columns:
+            # Create the bar chart
+            fig, ax = plt.subplots(figsize=(10, 6))  
+            if hue_col_bar:
+                sns.barplot(x=cat_col, y=num_col, hue=hue_col_bar, data=df, ax=ax, palette=COLOR_PALETTE)
+            else:
+                sns.barplot(x=cat_col, y=num_col, data=df, ax=ax, palette=COLOR_PALETTE)
+            st.pyplot(fig)
+        else:
+            st.error("No data found or selected columns are invalid. Please check your data.") 
+
+with tab4:
+    st.subheader("Line Chart Configuration")
+
+    # Column Selection (Numerical)
+    line_1, line_2 = st.columns(2)
+
+    with line_1:
+        line_x = st.selectbox("Select Col X-axis column:", df.columns)
+    with line_2:
+        line_y = st.selectbox("Select Col Y-axis column:", df.columns)
+
+    # Color (Grouping) Selection
+    group_col = st.selectbox("Group by (optional):", df.columns.insert(0, None))
+
+    # Plot Button
+    if st.button("Create Line Chart"):
+        # Handle potential errors before plotting
+        if not line_x or not line_y:
+            st.warning("Please select both X and Y columns to plot.")
+        elif not df.empty and line_x in df.columns and line_y in df.columns:
+            # Create the line chart
+            fig, ax = plt.subplots(figsize=(10, 6))  
+            if group_col:
+                sns.lineplot(x=line_x, y=line_y, hue=group_col, data=df, ax=ax, palette=COLOR_PALETTE)
+            else:
+                sns.lineplot(x=line_x, y=line_y, data=df, ax=ax, palette=COLOR_PALETTE)
+            st.pyplot(fig)
+        else:
+            st.error("No data found or selected columns are invalid. Please check your data.") 
     
     
     
