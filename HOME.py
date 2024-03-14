@@ -6,7 +6,7 @@ from modules.shared_functions import *
 LOGGER = get_logger(__name__)
 
 def run():
-    st.set_page_config(page_title="Tada Home", page_icon="👋", layout="wide")
+    st.set_page_config(page_title="Tada Home", page_icon="🎉", layout="wide")
 
     st.write("# Welcome to TADA")
 
