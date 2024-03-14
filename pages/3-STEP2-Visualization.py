@@ -132,7 +132,7 @@ with tab3:
                     time.sleep(2)
                     sns.barplot(x=cat_col, y=num_col, hue=hue_col_bar, data=df, ax=ax)
             else:
-                with st.spinner("Building your bar char:"):
+                with st.spinner("Building your bar chart:"):
                     time.sleep(2)
                     sns.barplot(x=cat_col, y=num_col, data=df, ax=ax)
             st.pyplot(fig)
