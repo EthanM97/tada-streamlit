@@ -1,0 +1,16 @@
+import streamlit as st
+import pandas as pd
+from modules.shared_functions import switch_page
+
+st.set_page_config(page_title="Machine Learning", page_icon="📈", layout="wide")
+
+st.sidebar.header("Machine Learning")
+st.sidebar.write("On this page, you can use your data to train a machine learning model. You can also use the model to make predictions on new data.")
+
+col1, col2, col3 = st.columns([1, 4, 1])
+
+with col2:
+    st.header("Machine Learning")
+    st.write("On this page, you can use your data to train a machine learning model. You can also use the model to make predictions on new data.")
+    st.image("images/UNDER CONSTRUCTION.png", caption=None, width=None, use_column_width=None, clamp=False, channels="RGB", output_format="auto")
+    

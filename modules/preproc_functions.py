@@ -15,6 +15,12 @@ def count_duplicate_rows(df):
     """
     return df.duplicated().sum()
 
+#returns df of duplicate rows
+
+def get_duplicate_rows(df):
+
+    return df[df.duplicated(keep=False)]
+
 #function to remove duplicate rows from dataframe
 
 def remove_duplicate_rows(df):
@@ -30,6 +36,7 @@ def remove_duplicate_rows(df):
     df_clean = df.copy()  # Create a copy of the DataFrame
     df_clean.drop_duplicates(inplace=True)
     return df_clean
+
 
 #function to count number of missing values in dataframe
 

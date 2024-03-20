@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from modules.shared_functions import *
 
-#function for file upload
+#-------------------------function for file upload------------------------------#
         
 def secure_file_uploader():
     """
@@ -59,22 +59,22 @@ st.sidebar.divider()
 #--File Upload Section--------------------------------
 
 uploaded_df = secure_file_uploader()
+
 if uploaded_df is not None:
-    if 'main_df' not in st.session_state:
-        st.session_state.main_df = uploaded_df.copy()  # Initialize session state
-        st.dataframe(st.session_state.main_df)
+    st.session_state.main_df = uploaded_df.copy()  # Initialize session state
+    st.dataframe(st.session_state.main_df)
 
 #--Next Button--------------------------------
         
-    col1, col2 = st.columns([18, 1])
+col1, col2 = st.columns([10, 1])
 
-    with col1:
-        st.write("")
-    with col2:    
-        next_button = st.button("Next", key="next_button", help="Move to next step")
-        if next_button: 
-            if 'main_df' not in st.session_state:
-                st.session_state.main_df = uploaded_df.copy()  # Initialize session state
-            switch_page("STEP1-Preprocessing")
+with col1:
+    st.write("")
+with col2:    
+    next_button = st.button("Next", key="next_button", help="Move to next step")
+    if next_button: 
+        if 'main_df' not in st.session_state:
+            st.session_state.main_df = uploaded_df.copy()  # Initialize session state
+        switch_page("STEP 2 - Preprocessing")
 
 

@@ -2,19 +2,34 @@ import streamlit as st
 from streamlit.logger import get_logger
 import pandas as pd
 from modules.shared_functions import *
+from st_pages import Page, add_page_title, show_pages
 
 LOGGER = get_logger(__name__)
 
+show_pages(
+[
+    Page("HOME.py", "HOME", "🏠"),
+    # Can use :<icon-name>: or the actual icon
+    Page("pages/1-upload.py", "STEP 1 - Upload", "📁"),
+    # The pages appear in the order you pass them
+    Page("pages/2-Preprocessing.py", "STEP 2 - Preprocessing", "💻"),
+    Page("pages/3-Visualization.py", "STEP 3 - Visualization", "📊"),
+    # Will use the default icon and name based on the filename if you don't
+    # pass them
+    Page("pages/4-Machine_Learning.py", "STEP 4 - Machine Learning","🤖")
+
+]
+)   
+
 def run():
     st.set_page_config(page_title="Tada Home", page_icon="🎉", layout="wide")
-
-    st.write("# Welcome to TADA")
-
+    st.write("# Welcome to TADA 🎉")
+    
     st.markdown(
         """
-          #### Tada: Your Data Transformation Sidekick
+          #### A Data Scientists Best Friend 🐕
 
-          Tada was created to revolutionize the way you work with data. Say goodbye to tedious cleaning and manipulation tasks – Tada does the heavy lifting so you can focus on the insights that matter. With lightning-fast processing and automatic insight generation, unlock the true power of your data with ease.
+          Tada was created to streamline the way you work with data. Say goodbye to tedious cleaning and manipulation tasks – Tada does the heavy lifting so you can focus on the insights that matter. With lightning-fast processing and automatic insight generation, unlock the true power of your data with ease.
 
           ---
         
@@ -28,38 +43,9 @@ def run():
     with col2:    
         next_button = st.button("Next", key="next_button", help="Move to next step")
         if next_button: 
-            switch_page("STEP1-UPLOAD")
+            switch_page("STEP 1 - Upload")
 
 
-#allows addition of logo to top of sidebar menu
-
-def add_logo(logo_url: str, height: int = 120):
-    """Add a logo (from logo_url) on the top of the navigation page of a multipage app.
-    Taken from [the Streamlit forum](https://discuss.streamlit.io/t/put-logo-and-title-above-on-top-of-page-navigation-in-sidebar-of-multipage-app/28213/6)
-    The url can either be a url to the image, or a local path to the image.
-
-    Args:
-        logo_url (str): URL/local path of the logo
-    """
-
-    if validators.url(logo_url) is True:
-        logo = f"url({logo_url})"
-    else:
-        logo = f"url(data:image/png;base64,{base64.b64encode(Path(logo_url).read_bytes()).decode()})"
-
-    st.markdown(
-        f"""
-        <style>
-            [data-testid="stSidebarNav"] {{
-                background-image: {logo};
-                background-repeat: no-repeat;
-                padding-top: {height - 40}px;
-                background-position: 20px 20px;
-            }}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
 if __name__ == "__main__":
     run()
