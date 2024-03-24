@@ -2,52 +2,11 @@ import streamlit as st
 import pandas as pd
 from modules.shared_functions import *
 from modules.preproc_functions import *
+from modules.remove_duplicates import *
 
 st.set_page_config(page_title="Pre-Process Your Data", page_icon="📈", layout="wide")
 
 # Function to revert to original DataFrame
-def undo():
-    st.session_state.main_df = st.session_state.original_df
-    st.session_state.changes_undone = True
-
-def show_only_duplicates():   
-    if st.session_state.show_duplicates:
-        st.session_state.main_df = get_duplicate_rows(st.session_state.main_df)
-
-def remove_duplicates():
-    st.session_state.modified_df = remove_duplicate_rows(st.session_state.main_df)
-    st.session_state.main_df = st.session_state.modified_df
-    st.session_state.num_duplicates = count_duplicate_rows(st.session_state.main_df)
-
-def remove_selected_duplicates():
-    st.session_state.main_df.drop(st.session_state.remove_specific_duplicates, inplace=True)
-    st.session_state.modified_df = st.session_state.main_df.copy()
-    st.session_state.num_duplicates = count_duplicate_rows(st.session_state.main_df)
-
-def show_visualization_button():
-    finish_button = st.button("TRY VISUALIZATION", key="finish_button", help="Move to Visualization")
-    if finish_button: 
-        if 'main_df' not in st.session_state:
-            st.dataframe(st.session_state.main_df)
-        switch_page("2-Visualization")
-
-def get_indices_of_duplicates(df):
-    '''return the indices of duplicate rows in the data set'''
-    return df[df.duplicated(keep=False)].index
-
-def show_csv_download_button():
-    csv = convert_df(st.session_state.main_df)
-    st.download_button(
-        label="Download data as CSV",
-        data=csv,
-        file_name='processed_data.csv',
-        mime='text/csv',
-    )
-
-def show_undo_button():
-    st.button("Undo Changes", on_click=undo)
-    if st.session_state.changes_undone:
-        st.success("undo successful!")
 
 #--Sidebar setup--------------------------------
 
@@ -68,7 +27,7 @@ if 'main_df' not in st.session_state:
 
 else: 
     
-    #initialize other session state variables
+    #initialize session state variables
     
     st.session_state.original_df = st.session_state.main_df.copy()
     st.session_state.modified_df = st.session_state.main_df.copy()
@@ -81,6 +40,7 @@ else:
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Remove Duplicates", "Handle Missing Data", "Handle Outliers", "Feature Engineering", "Encoding", "Scaling", "Dimensionality Reduction"])
 
     with tab1:
+        get_tab_one()
 
         with st.container():
 

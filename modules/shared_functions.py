@@ -33,6 +33,33 @@ def switch_page(page_name: str):
 
     raise ValueError(f"Could not find page {page_name}. Must be one of {page_names}")
 
+#------------------Button Functions--------------------------------
+
+def undo():
+    st.session_state.main_df = st.session_state.original_df
+    st.session_state.changes_undone = True
+
+
+def show_visualization_button():
+    finish_button = st.button("TRY VISUALIZATION", key="finish_button", help="Move to Visualization")
+    if finish_button: 
+        if 'main_df' not in st.session_state:
+            st.dataframe(st.session_state.main_df)
+        switch_page("2-Visualization")
+
+def show_csv_download_button():
+    csv = convert_df(st.session_state.main_df)
+    st.download_button(
+        label="Download data as CSV",
+        data=csv,
+        file_name='processed_data.csv',
+        mime='text/csv',
+    )
+
+def show_undo_button():
+    st.button("Undo Changes", on_click=undo)
+    if st.session_state.changes_undone:
+        st.success("undo successful!")
 
 #------------------Download Functions--------------------------------
 
