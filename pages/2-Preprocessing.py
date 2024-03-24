@@ -13,22 +13,16 @@ def undo():
 def show_only_duplicates():   
     if st.session_state.show_duplicates:
         st.session_state.main_df = get_duplicate_rows(st.session_state.main_df)
-    else:
-        if st.session_state.duplicates_removed:
-            st.session_state.main_df = st.session_state.no_duplicates_df
-        else:
-            st.session_state.main_df = st.session_state.original_df
 
 def remove_duplicates():
-    st.session_state.no_duplicates_df = remove_duplicate_rows(st.session_state.main_df)
-    st.session_state.main_df = st.session_state.no_duplicates_df
+    st.session_state.modified_df = remove_duplicate_rows(st.session_state.main_df)
+    st.session_state.main_df = st.session_state.modified_df
     st.session_state.num_duplicates = count_duplicate_rows(st.session_state.main_df)
-    st.session_state.duplicates_removed = True
 
 def remove_selected_duplicates():
     st.session_state.main_df.drop(st.session_state.remove_specific_duplicates, inplace=True)
+    st.session_state.modified_df = st.session_state.main_df.copy()
     st.session_state.num_duplicates = count_duplicate_rows(st.session_state.main_df)
-    st.session_state.duplicates_removed = True
 
 def show_visualization_button():
     finish_button = st.button("TRY VISUALIZATION", key="finish_button", help="Move to Visualization")
@@ -76,8 +70,8 @@ else:
     
     #initialize other session state variables
     
-    if 'original_df' not in st.session_state:
-        st.session_state.original_df = st.session_state.main_df.copy()
+    st.session_state.original_df = st.session_state.main_df.copy()
+    st.session_state.modified_df = st.session_state.main_df.copy()
     st.session_state.num_duplicates = count_duplicate_rows(st.session_state.main_df)
     st.session_state.duplicates_removed = False
     st.session_state.changes_undone = False
@@ -93,34 +87,52 @@ else:
             st.subheader("Remove Duplicates")
             
             if st.session_state.num_duplicates > 0: 
-                st.write(f"There are {st.session_state.num_duplicates} duplicate rows in your data")
 
-                # Checkbox to show only duplicate rows
-                duplicates_only = st.checkbox("Show only duplicate rows", value=False, key="show_duplicates", on_change=show_only_duplicates)
+                col1, col2, col3 = st.columns([2,2,1])
+                
+                with col1:
+                    st.write(f"We found {st.session_state.num_duplicates} duplicate rows in your data!")
+                
+                with col2:
+                    # Checkbox to show only duplicate rows
+                    duplicates_only = st.checkbox("Show only duplicate rows", value=False, key="show_duplicates", on_change=show_only_duplicates)
+                
                 dropdown = st.selectbox("Select the duplicated row you wish to remove", get_indices_of_duplicates(st.session_state.main_df), key="remove_specific_duplicates")
 
-                # Button to remove all duplicates
-                remove_all = st.button("Remove All Duplicates" , on_click=remove_duplicates)
-                remove_selected = st.button("Remove Selected Duplicates" , on_click=remove_selected_duplicates)     
-                
+                col1, col2, col3 = st.columns([3, 3, 5])
+                with col1: 
+                    st.session_state.remove_selected = st.button("Remove Selected Duplicates" , on_click=remove_selected_duplicates, key="row")
+                with col2:   
+                    # Button to remove all duplicates
+                    st.session_state.remove_all = st.button("Remove All Duplicates" , on_click=remove_duplicates)
+                     
                 #whenever a row is removed print row x removed successfully
-                if remove_selected:
-                    st.success(f"Duplicate row {dropdown} removed successfully!")
-                elif remove_all:
+                if st.session_state.remove_selected:
+                    st.success(f"Selected row removed successfully!")
+                elif st.session_state.remove_all:
                     st.success(f"All duplicate rows have been removed!")
                     
-            elif st.session_state.num_duplicates <= 0:  
-                st.success(f"Try another preprocessing step or move to the visualization step")
-                
-                col1, col2, col3, col4, col5, col6 = st.columns([1,1,1,1,1,1])
+            elif st.session_state.num_duplicates <= 0 and 'remove_selected' in st.session_state or 'remove_all' in st.session_state: 
+                st.success(f"No duplicate rows remaining! Select another preprocessing function from the tabs above, or move on to Visualization (STEP 2)")
+                col1, col2, col3, col4, col5 = st.columns([3,1,1,1,1])
                 
                 with col1:
                     show_undo_button()
-                with col2:
-                    show_visualization_button()
+            else:
+                st.success(f"No duplicate rows found in your data! Select another preprocessing function from the tabs above, or move on to Visualization (STEP 2)")    
+                col1, col2, col3, col4, col5 = st.columns([3,1,1,1,1])
+                
+                with col1:
+                    show_undo_button()
 
             # Display the DataFrame with applied customizations
             st.dataframe(st.session_state.main_df)
+            col1, col2, col3, col4, col5 = st.columns([2,1,1,1,1])
+
+            with col4:
+                    show_csv_download_button()
+            with col5:    
+                show_visualization_button()
 
     #removing or filling in missing data 
     #PROBLEM_2A => need to make dynamic => the total missing values and list of features with missing values should be updated after each change

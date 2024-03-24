@@ -56,15 +56,21 @@ st.sidebar.write("*Disclaimer - Tada does not store your data. Once you close th
 st.sidebar.divider()
 
 
-#--File Upload Section--------------------------------
+#-----------------------------File Upload Section--------------------------------
 
 uploaded_df = secure_file_uploader()
 
 if uploaded_df is not None:
     st.session_state.main_df = uploaded_df.copy()  # Initialize session state
-    st.dataframe(st.session_state.main_df)
 
-#--Next Button--------------------------------
+if 'main_df' in st.session_state:
+    st.write("Preview of the uploaded data:")
+    st.dataframe(st.session_state.main_df)
+            
+else:
+    st.warning("Please upload a file to continue")
+
+#--------------------------------Next Button--------------------------------
         
 col1, col2 = st.columns([10, 1])
 

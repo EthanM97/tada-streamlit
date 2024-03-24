@@ -36,11 +36,9 @@ def run():
         """
     )
 
-    col1, col2 = st.columns([10, 2])
+    col1, col2, col3, col4, col5 = st.columns([6,1,1,1,1])
 
-    with col1:
-        st.write("")
-    with col2:    
+    with col5:    
         next_button = st.button("Next", key="next_button", help="Move to next step")
         if next_button: 
             switch_page("STEP 1 - Upload")
