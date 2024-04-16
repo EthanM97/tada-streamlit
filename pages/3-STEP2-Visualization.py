@@ -25,9 +25,6 @@ if 'main_df' not in st.session_state:
 
 df = st.session_state["main_df"]
 
-# Set theme
-sns.set_style("white")
-sns.color_palette("tab10")
 
 tab1, tab2, tab3, tab4 = st.tabs(["Scatter Plot", "Histogram", "Bar Chart", "Line Chart"])
 
@@ -52,16 +49,14 @@ with tab1:
             st.warning("Please select both X and Y columns to plot.")
         elif not df.empty and x_col in df.columns and y_col in df.columns:
             # Create the scatter plot 
-            fig, ax = plt.subplots(figsize=(18, 12))  
             if hue_col:
                 with st.spinner("Creating your scatter plot:"):
                     time.sleep(2)
-                    sns.scatterplot(x=x_col, y=y_col, hue=hue_col, data=df)
+                    st.scatter_chart(data=df, x=x_col, y=y_col, color=hue_col)
             else:
                 with st.spinner("Creating your scatter plot:"):
                     time.sleep(2)
-                    sns.scatterplot(x=x_col, y=y_col, data=df)
-            st.pyplot(fig)
+                    st.scatter_chart(data=df, x=x_col, y=y_col)
         else:
             st.error("No data found or selected columns are invalid. Please check your data.")
             
@@ -126,16 +121,14 @@ with tab3:
             st.warning("Please select both a categorical and numerical column.")
         elif not df.empty and cat_col in df.columns and num_col in df.columns:
             # Create the bar chart
-            fig, ax = plt.subplots(figsize=(10, 6))  
             if hue_col_bar:
                 with st.spinner("Building your bar chart:"):
                     time.sleep(2)
-                    sns.barplot(x=cat_col, y=num_col, hue=hue_col_bar, data=df, ax=ax)
+                    st.bar_chart(x=cat_col, y=num_col, color=hue_col_bar, data=df)
             else:
                 with st.spinner("Building your bar chart:"):
                     time.sleep(2)
-                    sns.barplot(x=cat_col, y=num_col, data=df, ax=ax)
-            st.pyplot(fig)
+                    st.bar_chart(x=cat_col, y=num_col, data=df)
         else:
             st.error("No data found or selected columns are invalid. Please check your data.") 
 
@@ -160,16 +153,14 @@ with tab4:
             st.warning("Please select both X and Y columns to plot.")
         elif not df.empty and line_x in df.columns and line_y in df.columns:
             # Create the line chart
-            fig, ax = plt.subplots(figsize=(10, 6))  
             if group_col:
                 with st.spinner("Creating your line graph:"):
                     time.sleep(2)
-                    sns.lineplot(x=line_x, y=line_y, hue=group_col, data=df, ax=ax)
+                    st.line_chart(x=line_x, y=line_y, color=group_col, data=df)
             else:
                 with st.spinner("Creating your line graph:"):
                     time.sleep(2)
-                    sns.lineplot(x=line_x, y=line_y, data=df, ax=ax)
-            st.pyplot(fig)
+                    st.line_chart(x=line_x, y=line_y, data=df)
         else:
             st.error("No data found or selected columns are invalid. Please check your data.") 
     
